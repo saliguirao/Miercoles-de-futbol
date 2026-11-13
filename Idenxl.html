@@ -1,0 +1,382 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Miércoles de Fútbol</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Extra+Condensed:wght@600;800&family=Manrope:wght@400;600;700&display=swap">
+<style>
+/* Layout: marcador de pabellón arriba, pestañas como líneas de pista, una columna centrada de 760px */
+:root{
+  --bg:#eef2f6; --surface:#ffffff; --ink:#132033; --muted:#5a6a80; --line:#d5dde7;
+  --court:#1f4f8f; --court-ink:#ffffff; --ball:#f26b1d; --ball-soft:#fde6d8;
+  --petos:#f26b1d; --sinpetos:#1f4f8f;
+  --win:#1d8a4e; --draw:#8a7a1d; --loss:#b23a3a;
+  --f-display:"Saira Extra Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1520; --surface:#152131; --ink:#e7edf5; --muted:#93a3b8; --line:#26364b;
+  --court:#2b6bbd; --court-ink:#ffffff; --ball:#ff8442; --ball-soft:#3a2416;
+  --petos:#ff8442; --sinpetos:#6fa3e8;
+  --win:#4cc483; --draw:#d1bf55; --loss:#f07a7a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0d1520; --surface:#152131; --ink:#e7edf5; --muted:#93a3b8; --line:#26364b;
+  --court:#2b6bbd; --court-ink:#ffffff; --ball:#ff8442; --ball-soft:#3a2416;
+  --petos:#ff8442; --sinpetos:#6fa3e8;
+  --win:#4cc483; --draw:#d1bf55; --loss:#f07a7a; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+
+header.board{background:var(--court);color:var(--court-ink);border-radius:0 0 18px 18px;overflow:hidden;max-width:960px;margin:0 auto}
+.hero{position:relative;aspect-ratio:16/9;max-height:440px;width:100%;max-width:100%;background:#1a1a1a}
+.hero img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 30%}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(10,14,22,0) 45%,rgba(10,14,22,.82) 100%)}
+.hero .in{position:absolute;left:0;right:0;bottom:0;padding-bottom:14px;z-index:1;color:#fff}
+.board .in{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.board .band{padding-block:14px 16px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.8;font-weight:600}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,8vw,48px);line-height:1;margin:4px 0 6px;text-transform:uppercase;letter-spacing:.01em;text-wrap:balance}
+.board p{margin:0;opacity:.9;font-size:14px}
+.hero h1,.hero .eyebrow,.hero p{text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.stats{display:flex;gap:22px;flex-wrap:wrap}
+.stats div{font-family:var(--f-display);font-size:28px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.stats span{display:block;font-family:var(--f-body);font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.75;font-weight:600;margin-top:4px}
+
+nav.tabs{display:flex;gap:4px;margin:18px 0 16px;border-bottom:2px solid var(--line);overflow-x:auto}
+nav.tabs button{appearance:none;background:none;border:0;padding:10px 12px;font:600 14px var(--f-body);color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ball)}
+nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ball);outline-offset:2px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--ball);margin-left:6px;vertical-align:middle}
+
+h2{font-family:var(--f-display);font-weight:800;font-size:26px;text-transform:uppercase;margin:0 0 4px;letter-spacing:.01em}
+.sub{color:var(--muted);margin:0 0 14px;font-size:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.stack{display:flex;flex-direction:column;gap:14px}
+
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+th,td{padding:10px 8px;text-align:right;white-space:nowrap}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;border-bottom:1px solid var(--line)}
+td{border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th.l,td.l{text-align:left}
+td.pos{font-family:var(--f-display);font-weight:800;font-size:22px;width:40px;text-align:center;color:var(--muted)}
+tr.top td.pos{color:var(--ball)}
+td.name{font-weight:700;white-space:normal;min-width:110px}
+td.score{font-family:var(--f-display);font-weight:800;font-size:22px;color:var(--court)}
+.mv{font-size:11px;font-weight:700;margin-left:6px}
+.mv.up{color:var(--win)} .mv.down{color:var(--loss)}
+.form{display:inline-flex;gap:3px}
+.form i{width:16px;height:16px;border-radius:4px;font-style:normal;font-size:10px;font-weight:700;color:#fff;display:inline-grid;place-items:center}
+.form .W{background:var(--win)} .form .D{background:var(--draw)} .form .L{background:var(--loss)}
+.bar{height:4px;background:var(--line);border-radius:2px;margin-top:4px;overflow:hidden}
+.bar b{display:block;height:100%;background:var(--court)}
+
+.how{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.55}
+.how code{font-family:inherit;background:var(--ball-soft);color:var(--ink);padding:1px 6px;border-radius:4px;font-weight:600}
+
+.empty{text-align:center;padding:32px 16px;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+
+button.btn{appearance:none;border:0;border-radius:8px;padding:10px 16px;font:700 14px var(--f-body);cursor:pointer;background:var(--ball);color:#fff}
+button.btn.sec{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button.btn.danger{background:var(--loss)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+button.link{appearance:none;background:none;border:0;color:var(--muted);font:600 13px var(--f-body);cursor:pointer;padding:4px 6px;text-decoration:underline}
+input[type=text],input[type=date],input[type=number],select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>input[type=text]{flex:1;min-width:0}
+
+.attend{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.attend label{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-weight:600;min-width:0}
+.attend label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.attend label small{margin-left:auto;color:var(--muted);font-weight:600;font-variant-numeric:tabular-nums}
+.attend input{accent-color:var(--ball)}
+
+.pitch{display:grid;grid-template-columns:1fr auto 1fr;gap:0;border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+.team{padding:14px;min-width:0;background:var(--surface)}
+.team h3{font-family:var(--f-display);font-weight:800;font-size:22px;text-transform:uppercase;margin:0 0 8px;display:flex;align-items:center;gap:8px}
+.team h3 .sw{width:14px;height:14px;border-radius:3px}
+.team.a h3{color:var(--petos)} .team.a .sw{background:var(--petos)}
+.team.b h3{color:var(--sinpetos)} .team.b .sw{background:var(--sinpetos)}
+.team ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.team li{display:flex;gap:8px;align-items:center;padding:6px 8px;border-radius:6px;background:var(--bg);min-width:0}
+.team li .r{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;font-weight:700;width:22px}
+.team li .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.team li button{appearance:none;border:0;background:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 4px}
+.mid{background:var(--court);color:var(--court-ink);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 10px;gap:8px;min-width:96px}
+.mid .vs{font-family:var(--f-display);font-weight:800;font-size:18px;opacity:.8}
+.goals{display:flex;align-items:center;gap:6px}
+.goals input{width:52px;text-align:center;font-family:var(--f-display);font-weight:800;font-size:26px;padding:4px;border:0;border-radius:6px;background:rgba(255,255,255,.95);color:#132033}
+.goals b{font-family:var(--f-display);font-size:24px}
+.tsum{font-size:12px;color:var(--muted);margin-top:8px}
+@media (max-width:560px){.pitch{grid-template-columns:1fr}.mid{flex-direction:row;padding:12px}}
+
+.hist{display:flex;flex-direction:column;gap:10px}
+.hcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.hhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.hhead .d{font-weight:700}
+.hres{font-family:var(--f-display);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums}
+.hres .pa{color:var(--petos)} .hres .pb{color:var(--sinpetos)}
+.hteams{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;font-size:13px;color:var(--muted)}
+.hteams b{color:var(--ink);display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:13px}
+
+.plist{display:flex;flex-direction:column}
+.plist div{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.plist div:last-child{border-bottom:0}
+.plist .n{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.plist small{color:var(--muted);font-variant-numeric:tabular-nums}
+
+.settings{display:flex;flex-direction:column;gap:12px}
+.settings label{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-weight:600}
+.note{font-size:13px;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;font-size:14px;z-index:9}
+.ro{background:var(--ball-soft);border-radius:8px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .2s ease-out}@keyframes up{from{opacity:0;transform:translate(-50%,8px)}}}
+</style>
+
+<header class="board">
+  <div class="hero">
+    <img src="equipo.jpg" alt="El grupo posando con camisetas amarillas y negras delante de la portería, con el trofeo en el suelo" width="1400" height="1050">
+    <div class="in">
+      <div class="eyebrow">Fútbol sala · clasificación individual</div>
+      <h1>Miércoles de Fútbol</h1>
+      <p>Equipos nuevos cada semana, hechos a partir de la clasificación.</p>
+    </div>
+  </div>
+  <div class="in band">
+    <div class="stats">
+      <div id="stPlayers">0<span>Jugadores</span></div>
+      <div id="stMatches">0<span>Partidos</span></div>
+      <div id="stLeader">—<span>Líder</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="t-clas" data-tab="clas" aria-selected="true">Clasificación</button>
+    <button role="tab" id="t-part" data-tab="part" aria-selected="false">Partido de la semana</button>
+    <button role="tab" id="t-hist" data-tab="hist" aria-selected="false">Historial</button>
+    <button role="tab" id="t-jug" data-tab="jug" aria-selected="false">Jugadores y reglas</button>
+  </nav>
+  <div id="roBanner" class="ro" hidden>Solo puedes ver la clasificación. Pide al organizador permiso de colaborador para apuntar resultados.</div>
+  <main id="view"></main>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+(function(){
+const S={players:{},matches:{},config:{weight:30,mode:"alterno"},ready:false};
+let db=null, canWrite=true, tab="clas";
+let attend=null; // Set de ids marcados para el partido
+let confirmDel=null, confirmP=null;
+const LS="liguilla-futsal-v1";
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fmtDate=s=>{try{return new Date(s+"T12:00").toLocaleDateString("es-ES",{weekday:"short",day:"numeric",month:"short",year:"numeric"})}catch(e){return s}};
+function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2200)}
+
+/* ---------- almacenamiento ---------- */
+function saveLocal(){if(db)return;try{localStorage.setItem(LS,JSON.stringify({players:S.players,matches:S.matches,config:S.config}))}catch(e){}}
+function loadLocal(){try{const d=JSON.parse(localStorage.getItem(LS)||"null");if(d){S.players=d.players||{};S.matches=d.matches||{};S.config=Object.assign(S.config,d.config||{})}}catch(e){}}
+async function putPlayer(id,obj){S.players[id]=obj;render();if(db){await db.collection("players").doc(id).set(obj)}else saveLocal()}
+async function rmPlayer(id){delete S.players[id];render();if(db){await db.collection("players").doc(id).delete()}else saveLocal()}
+async function putMatch(id,obj){S.matches[id]=obj;render();if(db){await db.collection("matches").doc(id).set(obj)}else saveLocal()}
+async function rmMatch(id){delete S.matches[id];render();if(db){await db.collection("matches").doc(id).delete()}else saveLocal()}
+async function putConfig(c){S.config=Object.assign({},S.config,c);render();if(db){await db.doc("config/main").set(S.config)}else saveLocal()}
+function guard(p){return p.catch(e=>{if(e&&e.code==="invalid_argument"){canWrite=false;$("#roBanner").hidden=false;render()}toast(e&&e.code==="quota_exceeded"?"La app está llena: borra partidos antiguos.":"No se pudo guardar. Inténtalo de nuevo.")})}
+
+/* ---------- cálculo ---------- */
+function played(){return Object.entries(S.matches).filter(([,m])=>m.status==="jugado").map(([id,m])=>Object.assign({id},m)).sort((a,b)=>(a.date+a.created).localeCompare(b.date+b.created))}
+function pending(){const e=Object.entries(S.matches).find(([,m])=>m.status==="pendiente");return e?Object.assign({id:e[0]},e[1]):null}
+function standings(list){
+  const t={};
+  for(const id in S.players)t[id]={id,name:S.players[id].name,pj:0,g:0,e:0,p:0,pts:0,form:[]};
+  for(const m of list){
+    const ra=m.ga>m.gb?"W":m.ga<m.gb?"L":"D", rb=ra==="W"?"L":ra==="L"?"W":"D";
+    for(const [ids,r] of [[m.teamA,ra],[m.teamB,rb]])for(const id of ids){
+      const s=t[id];if(!s)continue;s.pj++;
+      if(r==="W"){s.g++;s.pts+=3}else if(r==="D"){s.e++;s.pts+=1}else s.p++;
+      s.form.push(r);
+    }
+  }
+  const rows=Object.values(t);
+  for(const r of rows){
+    r.pctW=r.pj?r.g/r.pj*100:0;
+    r.score=r.pj?r.pts*(0.7+0.3*(r.g/r.pj)):0; // P = p × (0,7 + 0,3 × Pg/Pj)
+    r.form=r.form.slice(-5);
+  }
+  rows.sort((a,b)=>b.score-a.score||b.pts-a.pts||b.pctW-a.pctW||b.pj-a.pj||a.name.localeCompare(b.name,"es"));
+  // Misma puntuación final (a 2 decimales) = mismo puesto: 1, 2, 2, 4…
+  const k=r=>r.score.toFixed(2);
+  rows.forEach((r,i)=>r.pos=i&&k(r)===k(rows[i-1])?rows[i-1].pos:i+1);
+  return rows;
+}
+function makeTeams(ids,table){
+  const order=table.filter(r=>ids.has(r.id)).map(r=>r.id);
+  const A=[],B=[];
+  order.forEach((id,i)=>{
+    const toA=S.config.mode==="serpiente"?(i%4===0||i%4===3):(i%2===0);
+    (toA?A:B).push(id);
+  });
+  return {A,B};
+}
+const pname=id=>S.players[id]?.name||"Jugador eliminado";
+
+/* ---------- render ---------- */
+function render(){
+  const pl=played(), table=standings(pl);
+  $("#stPlayers").firstChild.nodeValue=Object.keys(S.players).length;
+  $("#stMatches").firstChild.nodeValue=pl.length;
+  $("#stLeader").firstChild.nodeValue=pl.length&&table[0]?table[0].name:"—";
+  const pend=pending();
+  $("#t-part").innerHTML="Partido de la semana"+(pend?'<span class="dot" title="Pendiente de resultado"></span>':"");
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===tab));
+  const v=$("#view");
+  if(tab==="clas")v.innerHTML=viewClas(pl,table);
+  else if(tab==="part")v.innerHTML=viewPart(table,pend);
+  else if(tab==="hist")v.innerHTML=viewHist(pl);
+  else v.innerHTML=viewJug(table);
+}
+
+function viewClas(pl,table){
+  if(!Object.keys(S.players).length)return `<div class="panel empty"><strong>Todavía no hay jugadores</strong>Apúntalos en «Jugadores y reglas» y genera el primer partido.</div>`;
+  const prev=pl.length?standings(pl.slice(0,-1)):null, prevPos={};
+  if(prev)prev.forEach(r=>prevPos[r.id]=r.pos);
+  let h=`<h2>Clasificación</h2><p class="sub">${pl.length?`Tras ${pl.length} ${pl.length===1?"partido":"partidos"}. Las flechas indican el cambio desde la jornada anterior.`:"Aún no se ha jugado ningún partido."}</p>
+  <div class="tablewrap"><table><thead><tr><th>#</th><th class="l">Jugador</th><th title="Partidos jugados">PJ</th><th title="Ganados">G</th><th title="Empatados">E</th><th title="Perdidos">P</th><th title="Puntos por partidos ganados (3) o empatados (1)">Puntos</th><th>% Vic.</th><th class="l">Racha</th><th title="Puntuación final">Puntuación</th></tr></thead><tbody>`;
+  for(const r of table){
+    let mv="";
+    if(prev&&pl.length>1&&prevPos[r.id]){const d=prevPos[r.id]-r.pos;if(d>0)mv=`<span class="mv up">▲${d}</span>`;else if(d<0)mv=`<span class="mv down">▼${-d}</span>`}
+    h+=`<tr class="${r.pos<=3&&r.pj?"top":""}"><td class="pos">${r.pos}</td><td class="l name">${esc(r.name)}${mv}</td><td>${r.pj}</td><td>${r.g}</td><td>${r.e}</td><td>${r.p}</td><td><b>${r.pts}</b></td><td>${r.pctW.toFixed(0)}%<div class="bar"><b style="width:${r.pctW}%"></b></div></td><td class="l"><span class="form">${r.form.map(f=>`<i class="${f}">${f==="W"?"G":f==="D"?"E":"P"}</i>`).join("")||'<span class="note">—</span>'}</span></td><td class="score">${r.score.toFixed(2).replace(".",",")}</td></tr>`;
+  }
+  h+=`</tbody></table></div>
+  <p class="how"><b>Cómo se calcula la puntuación:</b> <code>P = p × (0,7 + 0,3 × Pg / Pj)</code>, donde <i>p</i> son los puntos (victoria 3, empate 1, derrota 0), <i>Pg</i> los partidos ganados y <i>Pj</i> los jugados. La clasificación se ordena por <i>P</i>, y quienes tienen la misma puntuación comparten puesto.</p>`;
+  return h;
+}
+
+function viewPart(table,pend){
+  const ids=Object.keys(S.players);
+  if(!ids.length)return `<div class="panel empty"><strong>Faltan jugadores</strong>Añádelos en «Jugadores y reglas».</div>`;
+  if(pend){
+    const sumA=pend.teamA.reduce((s,id)=>s+(table.find(r=>r.id===id)?.score||0),0), sumB=pend.teamB.reduce((s,id)=>s+(table.find(r=>r.id===id)?.score||0),0);
+    const li=(id,side)=>{const r=table.find(x=>x.id===id);return `<li><span class="r">${r?r.pos+"º":"–"}</span><span class="n">${esc(pname(id))}</span>${canWrite?`<button data-act="swap" data-id="${id}" data-side="${side}" title="Pasar al otro equipo" aria-label="Pasar ${esc(pname(id))} al otro equipo">⇄</button><button data-act="out" data-id="${id}" title="Quitar del partido" aria-label="Quitar a ${esc(pname(id))} del partido">✕</button>`:""}</li>`};
+    const inMatch=new Set([...pend.teamA,...pend.teamB]), free=table.filter(r=>!inMatch.has(r.id));
+    const addRow=canWrite&&free.length?`<div class="row" style="margin-top:12px"><label for="addSel"><b>Añadir al partido</b></label><select id="addSel">${free.map(r=>`<option value="${r.id}">${esc(r.name)} (${r.pos}º)</option>`).join("")}</select><button class="btn sec" data-act="addTo" data-side="A">A Petos</button><button class="btn sec" data-act="addTo" data-side="B">A Sin petos</button></div>`:"";
+    return `<h2>Partido del ${esc(fmtDate(pend.date))}</h2><p class="sub">Equipos repartidos por la clasificación (${S.config.mode==="serpiente"?"en serpiente":"alternos: 1º, 3º, 5º… contra 2º, 4º, 6º…"}). Usa ⇄ para cambiar a alguien de equipo y ✕ para quitarlo. No hay límite de jugadores por equipo.</p>
+    <div class="pitch">
+      <div class="team a"><h3><span class="sw"></span>Petos</h3><ol>${pend.teamA.map(id=>li(id,"A")).join("")}</ol><div class="tsum">${pend.teamA.length} jugadores · suma de puntuación ${sumA.toFixed(1)}</div></div>
+      <div class="mid"><span class="vs">Resultado</span><div class="goals"><input id="ga" type="number" min="0" inputmode="numeric" aria-label="Goles de Petos" placeholder="0" ${canWrite?"":"disabled"}><b>–</b><input id="gb" type="number" min="0" inputmode="numeric" aria-label="Goles de Sin petos" placeholder="0" ${canWrite?"":"disabled"}></div></div>
+      <div class="team b"><h3><span class="sw"></span>Sin petos</h3><ol>${pend.teamB.map(id=>li(id,"B")).join("")}</ol><div class="tsum">${pend.teamB.length} jugadores · suma de puntuación ${sumB.toFixed(1)}</div></div>
+    </div>
+    ${addRow}
+    ${canWrite?`<div class="row" style="margin-top:14px"><button class="btn" data-act="saveRes">Guardar resultado y actualizar clasificación</button>${confirmDel===pend.id?`<span class="confirm">¿Descartar este partido? <button class="btn danger" data-act="delMatch" data-id="${pend.id}">Descartar</button><button class="link" data-act="cancel">No</button></span>`:`<button class="link" data-act="askDel" data-id="${pend.id}">Descartar partido</button>`}</div>`:""}`;
+  }
+  if(!attend)attend=new Set(ids.filter(id=>S.players[id].active!==false));
+  for(const id of [...attend])if(!S.players[id])attend.delete(id);
+  const n=attend.size;
+  return `<h2>Nuevo partido</h2><p class="sub">Marca quién juega esta semana. Los equipos salen de la clasificación actual.</p>
+  <div class="panel stack">
+    <div class="row"><label for="mdate"><b>Fecha</b></label><input id="mdate" type="date" value="${today()}"><span class="note" style="margin-left:auto">${n} convocados</span></div>
+    <div class="attend">${table.map(r=>`<label><input type="checkbox" data-att="${r.id}" ${attend.has(r.id)?"checked":""} ${canWrite?"":"disabled"}><span>${esc(r.name)}</span><small>${r.pos}º</small></label>`).join("")}</div>
+    <div class="row"><button class="btn" data-act="gen" ${n<2||!canWrite?"disabled":""}>Generar equipos</button><button class="link" data-act="all">Todos</button><button class="link" data-act="none">Ninguno</button></div>
+  </div>`;
+}
+
+function viewHist(pl){
+  if(!pl.length)return `<div class="panel empty"><strong>Sin partidos todavía</strong>Cuando guardes el primer resultado aparecerá aquí.</div>`;
+  return `<h2>Historial</h2><p class="sub">Si borras un partido, la clasificación se recalcula sola.</p><div class="hist">${pl.slice().reverse().map((m,i)=>`<div class="hcard"><div class="hhead"><span class="d">Jornada ${pl.length-i} · ${esc(fmtDate(m.date))}</span><span class="hres"><span class="pa">${m.ga}</span> – <span class="pb">${m.gb}</span></span></div>
+  <div class="hteams"><div><b style="color:var(--petos)">Petos${m.ga>m.gb?" · ganan":m.ga===m.gb?" · empate":""}</b>${m.teamA.map(id=>esc(pname(id))).join(", ")}</div><div><b style="color:var(--sinpetos)">Sin petos${m.gb>m.ga?" · ganan":m.ga===m.gb?" · empate":""}</b>${m.teamB.map(id=>esc(pname(id))).join(", ")}</div></div>
+  ${canWrite?(confirmDel===m.id?`<div class="confirm">¿Borrar este partido? <button class="btn danger" data-act="delMatch" data-id="${m.id}">Borrar</button><button class="link" data-act="cancel">No</button></div>`:`<div class="confirm"><button class="link" data-act="askDel" data-id="${m.id}">Borrar partido</button></div>`):""}</div>`).join("")}</div>`;
+}
+
+function viewJug(table){
+  const ids=Object.keys(S.players);
+  return `<h2>Jugadores</h2><p class="sub">Los jugadores nuevos empiezan con 0 y entran al final de la clasificación.</p>
+  <div class="stack">
+  ${canWrite?`<form class="row panel" id="addForm"><input id="newName" type="text" placeholder="Nombre del jugador" maxlength="40" autocomplete="off"><button class="btn" type="submit">Añadir</button></form>`:""}
+  <div class="panel">${ids.length?`<div class="plist">${table.map(r=>`<div><span class="n">${esc(r.name)}</span><small>${r.pj} PJ</small>${canWrite?(confirmP===r.id?`<span class="confirm" style="margin:0">¿Eliminar? <button class="btn danger" data-act="delP" data-id="${r.id}">Sí</button><button class="link" data-act="cancel">No</button></span>`:`<button class="link" data-act="askP" data-id="${r.id}">Eliminar</button>`):""}</div>`).join("")}</div>`:`<p class="empty" style="padding:8px"><strong>Sin jugadores</strong>Escribe un nombre arriba para empezar.</p>`}</div>
+  <h2 style="margin-top:8px">Reglas</h2>
+  <div class="panel settings">
+    <p class="note" style="margin:0">Puntuación: <b>P = p × (0,7 + 0,3 × Pg / Pj)</b>. Los equipos no tienen límite de jugadores y pueden ser desiguales.</p>
+    <label for="mode">Reparto de equipos <select id="mode" ${canWrite?"":"disabled"}><option value="alterno" ${S.config.mode==="alterno"?"selected":""}>Alterno (1º, 3º, 5º… / 2º, 4º, 6º…)</option><option value="serpiente" ${S.config.mode==="serpiente"?"selected":""}>Serpiente (1º, 4º, 5º, 8º… / 2º, 3º, 6º, 7º…)</option></select></label>
+    <p class="note">El reparto en serpiente suele dar equipos más igualados, porque el 1º no va siempre con el 3º.</p>
+  </div></div>`;
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener("click",e=>{
+  const t=e.target.closest("[data-tab]");if(t){tab=t.dataset.tab;confirmDel=confirmP=null;render();return}
+  const b=e.target.closest("[data-act]");if(!b)return;
+  const a=b.dataset.act,id=b.dataset.id;
+  if(a==="cancel"){confirmDel=confirmP=null;render()}
+  else if(a==="askDel"){confirmDel=id;render()}
+  else if(a==="askP"){confirmP=id;render()}
+  else if(a==="delMatch"){confirmDel=null;guard(rmMatch(id)).then(()=>toast("Partido borrado"))}
+  else if(a==="delP"){confirmP=null;guard(rmPlayer(id))}
+  else if(a==="all"){attend=new Set(Object.keys(S.players));render()}
+  else if(a==="none"){attend=new Set();render()}
+  else if(a==="gen"){
+    const table=standings(played()),{A,B}=makeTeams(attend,table);
+    const mid=uid();guard(putMatch(mid,{date:$("#mdate").value||today(),created:new Date().toISOString(),status:"pendiente",teamA:A,teamB:B,ga:0,gb:0})).then(()=>toast("Equipos generados"));
+  }
+  else if(a==="swap"){
+    const p=pending();if(!p)return;const A=p.teamA.slice(),B=p.teamB.slice();
+    if(b.dataset.side==="A"){A.splice(A.indexOf(id),1);B.push(id)}else{B.splice(B.indexOf(id),1);A.push(id)}
+    const m=Object.assign({},S.matches[p.id],{teamA:A,teamB:B});guard(putMatch(p.id,m));
+  }
+  else if(a==="out"){
+    const p=pending();if(!p)return;
+    guard(putMatch(p.id,Object.assign({},S.matches[p.id],{teamA:p.teamA.filter(x=>x!==id),teamB:p.teamB.filter(x=>x!==id)})));
+  }
+  else if(a==="addTo"){
+    const p=pending(),sel=$("#addSel");if(!p||!sel||!sel.value)return;
+    const pid=sel.value,A=p.teamA.slice(),B=p.teamB.slice();(b.dataset.side==="A"?A:B).push(pid);
+    guard(putMatch(p.id,Object.assign({},S.matches[p.id],{teamA:A,teamB:B}))).then(()=>toast(pname(pid)+" añadido"));
+  }
+  else if(a==="saveRes"){
+    const p=pending();if(!p)return;
+    const ga=parseInt($("#ga").value,10),gb=parseInt($("#gb").value,10);
+    if(isNaN(ga)||isNaN(gb)||ga<0||gb<0){toast("Escribe los goles de los dos equipos");return}
+    const m=Object.assign({},S.matches[p.id],{ga,gb,status:"jugado"});
+    tab="clas";guard(putMatch(p.id,m)).then(()=>toast("Clasificación actualizada"));
+  }
+});
+document.addEventListener("change",e=>{
+  const c=e.target.closest("[data-att]");
+  if(c){c.checked?attend.add(c.dataset.att):attend.delete(c.dataset.att);render();return}
+  if(e.target.id==="mode")guard(putConfig({mode:e.target.value}));
+});
+document.addEventListener("submit",e=>{
+  if(e.target.id!=="addForm")return;e.preventDefault();
+  const name=$("#newName").value.trim();if(!name)return;
+  if(Object.values(S.players).some(p=>p.name.toLowerCase()===name.toLowerCase())){toast("Ese nombre ya está en la lista");return}
+  const id=uid();if(attend)attend.add(id);
+  guard(putPlayer(id,{name,active:true,created:new Date().toISOString()})).then(()=>{toast(name+" añadido");const i=$("#newName");if(i)i.focus()});
+});
+
+/* ---------- arranque ---------- */
+loadLocal();render();
+(async()=>{
+  try{
+    const user=window.claude&&await window.claude.use("user");
+    if(user&&user.can){const c=await user.can("data.write");if(c===false){canWrite=false;$("#roBanner").hidden=false}}
+    db=window.claude&&await window.claude.use("db");
+  }catch(e){db=null}
+  if(!db){render();return}
+  S.players={};S.matches={};
+  const onErr=()=>{};
+  db.collection("players").onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S.players=o;render()},onErr);
+  db.collection("matches").onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S.matches=o;if(pending()&&tab==="clas"&&!render.once){render.once=1;tab="part"}render()},onErr);
+  db.doc("config/main").onSnapshot(s=>{if(s.exists)S.config=Object.assign({weight:30,mode:"alterno"},s.data());render()},onErr);
+})();
+})();
+</script>
+
+</body></html>
